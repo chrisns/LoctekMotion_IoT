@@ -6,7 +6,7 @@ class DeskHeightSensor : public Component, public UARTDevice, public Sensor
 public:
   DeskHeightSensor(UARTComponent *parent) : UARTDevice(parent) {}
 
-  float value = NULL;
+  float value = 0;
   float lastPublished = -1;
   unsigned long history[5];
 
@@ -108,12 +108,17 @@ public:
       if (history[2] == 0x9b)
       {
 
-        if (msg_type == 0x12 && msg_len == 7)
+        if (msg_type == 0x12 && (msg_len == 7 || msg_len == 10))
         {
           // Empty height
           if (incomingByte == 0)
           {
              //ESP_LOGD("DEBUG", "Height 1 is EMPTY -> 0x%02x", incomingByte);
+             //deskSerial.write(command_wakeup, sizeof(command_wakeup));
+          }
+          else if (hex_to_int(incomingByte) == 0)
+          {
+             //ESP_LOGD("DEBUG", "Invalid height 1 -> 0x%02x", incomingByte);
              //deskSerial.write(command_wakeup, sizeof(command_wakeup));
           }
           else
